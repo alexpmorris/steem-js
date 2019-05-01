@@ -4,6 +4,9 @@
 # Steem.js
 Steem.js the JavaScript API for Steem blockchain with support for WhaleVault
 
+to enable WhaleVault for signing:
+* steem.config.whalevault = window.whalevault;
+
 # Documentation
 
 - [Install](https://github.com/steemit/steem-js/tree/master/doc#install)
