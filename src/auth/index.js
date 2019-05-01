@@ -125,7 +125,8 @@ Auth.reqWhaleVaultSig = function (trx, keys, keyType) {
           trx.expiration = new Date(response.data.message.expiration * 1000);
           return trx;
         } else {
-          throw new Error(`whalevault: ${response.error} [${response.message}]', ${response}`);
+          console.error(response);
+          throw new Error(`whalevault: ${response.error} [${response.message}]`);
         }
       });
   }
