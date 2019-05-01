@@ -4,6 +4,8 @@ const broadcast = require("./broadcast");
 const config = require("./config");
 const formatter = require("./formatter")(api);
 const utils = require("./utils");
+const memo = require("./auth/memo");
+const ecc = require("./auth/ecc");
 
 const steem = {
   api,
@@ -11,7 +13,10 @@ const steem = {
   broadcast,
   config,
   formatter,
-  utils
+  utils,
+  memo,
+  ecc,
+  buffer: Buffer
 };
 
 if (typeof window !== "undefined") {

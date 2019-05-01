@@ -102,21 +102,58 @@ Auth.isPubkey = function(pubkey, address_prefix) {
 	return PublicKey.fromString(pubkey, address_prefix) != null
 }
 
+Auth.reqWhaleVaultSig = function (trx, keys, keyType) {
+  if (config.get('whalevault') != null) {
+    let wv_ops = {
+      ref_block_num: trx.ref_block_num,
+      ref_block_prefix: trx.ref_block_prefix,
+      operations: trx.operations
+    };
+    if (config.get('chain_id') != null) wv_ops.chainId = config.get('chain_id');
+    let user_arr = keys[keyType].split(':');  // ie.  userid:reason
+    if (user_arr[1] == "") user_arr[1] = trx.operations[0][0];  // set a default reason if blank
+    if (keyType == '0') {
+      // no default scope, check for `userid:reason:scope`
+      if (user_arr.length >= 3) keyType = user_arr[2]; else keyType = 'posting';
+    }
+
+    return config.get('whalevault')
+      .promiseRequestSignBuffer('steemjs', `stm:${user_arr[0]}`, wv_ops, keyType, user_arr[1], 'tx')
+      .then(response => {
+        if (response.success) {
+          trx.signatures = [response.result];
+          trx.expiration = new Date(response.data.message.expiration * 1000);
+          return trx;
+        } else {
+          throw new Error(`whalevault: ${response.error} [${response.message}]', ${response}`);
+        }
+      });
+  }
+};
+
 Auth.signTransaction = function (trx, keys) {
-	var signatures = [];
-	if (trx.signatures) {
-		signatures = [].concat(trx.signatures);
-	}
+  const keyType = Object.keys(keys)[0];
+  if (config.get('whalevault') != null && keys[keyType].includes(':')) {
+    return this.reqWhaleVaultSig(trx, keys, keyType)
+      .then(trxFinal => {
+        return signed_transaction.toObject(Object.assign(trx, {signatures: trx.signatures}));
+      });
+  }
 
-	var cid = new Buffer(config.get('chain_id'), 'hex');
-	var buf = transaction.toBuffer(trx);
+  var signatures = [];
+  if (trx.signatures) {
+	signatures = [].concat(trx.signatures);
+  }
 
-	for (var key in keys) {
-		var sig = Signature.signBuffer(Buffer.concat([cid, buf]), keys[key]);
-		signatures.push(sig.toBuffer())
-	}
+  var cid = new Buffer(config.get('chain_id'), 'hex');
+  var buf = transaction.toBuffer(trx);
 
-	return signed_transaction.toObject(Object.assign(trx, { signatures: signatures }))
+  for (var key in keys) {
+	var sig = Signature.signBuffer(Buffer.concat([cid, buf]), keys[key]);
+	signatures.push(sig.toBuffer())
+  }
+
+  return Promise.resolve(signed_transaction.toObject(Object.assign(trx, { signatures: signatures })));
 };
 
 module.exports = Auth;

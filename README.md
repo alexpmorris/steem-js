@@ -2,7 +2,7 @@
 [![Steem.js channel on steemit.chat](https://img.shields.io/badge/chat-steemit.chat-1c56a4.svg)](https://steemit.chat/channel/steemjs)
 
 # Steem.js
-Steem.js the JavaScript API for Steem blockchain
+Steem.js the JavaScript API for Steem blockchain with support for WhaleVault
 
 # Documentation
 

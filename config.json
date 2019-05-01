@@ -6,5 +6,7 @@
   "dev_uri": "https://api.steemitdev.com",
   "stage_uri": "https://api.steemitstage.com",
   "address_prefix": "STM",
-  "chain_id": "0000000000000000000000000000000000000000000000000000000000000000"
+  "chain_id": "0000000000000000000000000000000000000000000000000000000000000000",
+  "wv_obj": null,
+  "whalevault": null
 }
